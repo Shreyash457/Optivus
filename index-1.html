@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Optivus — AI Appointment Setter</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #f9f8f5;
+    --white: #ffffff;
+    --ink: #0f0f0e;
+    --ink-light: #3a3a36;
+    --muted: #8a8a82;
+    --border: #e5e4df;
+    --accent: #1a3f6f;
+    --accent-light: #e8eef6;
+    --accent2: #c8893a;
+    --surface: #f2f1ec;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Manrope', sans-serif;
+    font-weight: 400;
+    overflow-x: hidden;
+    line-height: 1.6;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(249,248,245,0.94);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 5rem;
+    height: 68px;
+  }
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 1.45rem;
+    color: var(--accent);
+    letter-spacing: -0.01em;
+  }
+  .logo span { color: var(--accent2); }
+  .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+  .nav-links a {
+    color: var(--ink-light);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--accent); }
+  .nav-right { display: flex; gap: 0.75rem; align-items: center; }
+  .btn-ghost {
+    color: var(--ink-light);
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    transition: background 0.2s, color 0.2s;
+  }
+  .btn-ghost:hover { background: var(--surface); color: var(--ink); }
+  .btn-nav {
+    background: var(--accent);
+    color: #fff;
+    padding: 0.55rem 1.3rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.2s;
+    letter-spacing: 0.01em;
+  }
+  .btn-nav:hover { background: #122c50; transform: translateY(-1px); }
+
+  /* HERO */
+  .hero {
+    padding: 140px 5rem 100px;
+    max-width: 1280px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  .hero-left { animation: fadeUp 0.9s ease both; }
+
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 1.75rem;
+    padding: 0.4rem 1rem;
+    background: #fdf3e7;
+    border: 1px solid #f0d8b4;
+    border-radius: 4px;
+  }
+  .eyebrow-dot { width: 5px; height: 5px; background: var(--accent2); border-radius: 50%; }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.6rem, 4.5vw, 4rem);
+    font-weight: 700;
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 1.75rem;
+  }
+  h1 em { font-style: italic; color: var(--accent); }
+
+  .hero-sub {
+    font-size: 1.05rem;
+    color: var(--ink-light);
+    line-height: 1.75;
+    font-weight: 300;
+    max-width: 480px;
+    margin-bottom: 2.5rem;
+  }
+
+  .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 3.5rem; }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    padding: 0.85rem 2rem;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+    letter-spacing: 0.01em;
+  }
+  .btn-primary:hover { background: #122c50; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(26,63,111,0.2); }
+  .btn-outline {
+    background: transparent;
+    color: var(--ink);
+    padding: 0.85rem 2rem;
+    border-radius: 6px;
+    border: 1.5px solid var(--border);
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .btn-outline:hover { border-color: var(--ink-light); background: var(--surface); }
+
+  .trust-row {
+    display: flex; align-items: center; gap: 1.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+  }
+  .trust-avatars { display: flex; }
+  .trust-avatars span {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    border: 2px solid var(--white);
+    background: var(--accent-light);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin-left: -8px;
+  }
+  .trust-avatars span:first-child { margin-left: 0; }
+  .trust-text { font-size: 0.82rem; color: var(--muted); line-height: 1.4; }
+  .trust-text strong { color: var(--ink); font-weight: 600; }
+
+  /* Hero right — UI preview */
+  .hero-right {
+    animation: fadeUp 0.9s 0.2s ease both;
+    position: relative;
+  }
+
+  .dashboard-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.03), 0 20px 60px rgba(0,0,0,0.06);
+    overflow: hidden;
+  }
+  .dashboard-header {
+    background: var(--accent);
+    padding: 1.2rem 1.5rem;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .dashboard-header-title { color: rgba(255,255,255,0.85); font-size: 0.78rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; }
+  .status-badge {
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.2rem 0.65rem;
+    border-radius: 100px;
+    display: flex; align-items: center; gap: 0.35rem;
+  }
+  .status-dot { width: 5px; height: 5px; background: #4ade80; border-radius: 50%; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  .dashboard-body { padding: 1.5rem; }
+
+  .stat-row {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 1rem; margin-bottom: 1.5rem;
+  }
+  .stat-box {
+    background: var(--surface);
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 0.3rem;
+  }
+  .stat-num.gold { color: var(--accent2); }
+  .stat-label { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 500; }
+  .stat-change { font-size: 0.7rem; color: #16a34a; font-weight: 600; margin-top: 0.2rem; }
+
+  .divider { height: 1px; background: var(--border); margin: 1rem 0; }
+
+  .conversation-preview { display: flex; flex-direction: column; gap: 0.75rem; }
+  .msg-row { display: flex; gap: 0.6rem; align-items: flex-end; }
+  .msg-row.right { flex-direction: row-reverse; }
+  .msg-avatar {
+    width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.6rem; font-weight: 700;
+  }
+  .msg-avatar.ai { background: var(--accent); color: #fff; }
+  .msg-avatar.lead { background: var(--surface); color: var(--ink); border: 1px solid var(--border); }
+  .msg-bubble {
+    padding: 0.6rem 0.9rem;
+    border-radius: 10px;
+    font-size: 0.78rem;
+    line-height: 1.5;
+    max-width: 220px;
+  }
+  .msg-bubble.ai { background: var(--accent); color: #fff; border-bottom-left-radius: 3px; }
+  .msg-bubble.lead { background: var(--surface); color: var(--ink-light); border-bottom-right-radius: 3px; border: 1px solid var(--border); }
+
+  .booked-badge {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+    padding: 0.7rem 1rem;
+    display: flex; align-items: center; gap: 0.6rem;
+    margin-top: 0.25rem;
+  }
+  .booked-text { font-size: 0.75rem; color: #166534; font-weight: 600; }
+  .booked-sub { font-size: 0.68rem; color: #4ade80; }
+
+  /* Floating accent cards */
+  .float-card {
+    position: absolute;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.8rem 1rem;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+    animation: floatCard 4s ease-in-out infinite alternate;
+  }
+  .float-card.top-left { top: -20px; left: -30px; font-size: 0.75rem; display: flex; align-items: center; gap: 0.5rem; }
+  .float-card.bottom-right { bottom: -16px; right: -20px; font-size: 0.75rem; }
+  @keyframes floatCard { from { transform: translateY(0); } to { transform: translateY(-8px); } }
+  .fc-label { font-size: 0.65rem; color: var(--muted); }
+  .fc-value { font-weight: 700; color: var(--ink); font-size: 0.8rem; }
+
+  @keyframes bar1 { from { height: 6px; } to { height: 18px; } }
+  @keyframes bar2 { from { height: 10px; } to { height: 20px; } }
+  @keyframes bar3 { from { height: 14px; } to { height: 8px; } }
+  .voicebar { display: inline-block; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* LOGOS */
+  .logos-strip {
+    background: var(--white);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 1.8rem 5rem;
+    display: flex; align-items: center; justify-content: center; gap: 4rem; flex-wrap: wrap;
+  }
+  .logos-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; font-weight: 500; }
+  .logo-item { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 600; color: var(--muted); opacity: 0.5; }
+
+  /* FEATURES */
+  .features { padding: 8rem 5rem; max-width: 1280px; margin: 0 auto; }
+  .section-header { margin-bottom: 4rem; }
+  .section-eyebrow { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent2); margin-bottom: 1rem; }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    color: var(--ink);
+    max-width: 520px;
+  }
+  .section-title em { font-style: italic; color: var(--accent); }
+
+  .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+  .feature-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2.2rem;
+    transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s;
+  }
+  .feature-card:hover { border-color: #c5d5e8; box-shadow: 0 8px 32px rgba(26,63,111,0.08); transform: translateY(-3px); }
+  .feature-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem; font-weight: 700;
+    color: var(--border); line-height: 1; margin-bottom: 1.2rem;
+    transition: color 0.25s;
+  }
+  .feature-card:hover .feature-num { color: var(--accent-light); }
+  .feature-card h3 { font-family: 'Playfair Display', serif; font-size: 1.15rem; font-weight: 700; color: var(--ink); margin-bottom: 0.75rem; line-height: 1.3; }
+  .feature-card p { font-size: 0.9rem; color: var(--ink-light); line-height: 1.75; font-weight: 300; }
+
+  /* STATS BAND */
+  .stats-band { background: var(--accent); padding: 5rem; }
+  .stats-inner { max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; text-align: center; }
+  .stat-big { font-family: 'Playfair Display', serif; font-size: clamp(2.5rem, 4vw, 3.5rem); font-weight: 700; color: #fff; line-height: 1; margin-bottom: 0.5rem; }
+  .stat-big span { color: var(--accent2); }
+  .stat-desc { font-size: 0.85rem; color: rgba(255,255,255,0.6); font-weight: 300; }
+
+  /* TESTIMONIALS */
+  .testimonial-section { padding: 8rem 5rem; max-width: 1280px; margin: 0 auto; }
+  .testimonial-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+  .testimonial-card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; }
+  .stars { color: var(--accent2); font-size: 0.85rem; margin-bottom: 1rem; letter-spacing: 0.05em; }
+  .testimonial-card blockquote { font-size: 0.92rem; color: var(--ink-light); line-height: 1.75; font-weight: 300; font-style: italic; margin-bottom: 1.5rem; }
+  .testimonial-author { display: flex; align-items: center; gap: 0.75rem; }
+  .author-avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--accent-light); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; color: var(--accent); }
+  .author-name { font-size: 0.85rem; font-weight: 600; color: var(--ink); }
+  .author-title { font-size: 0.75rem; color: var(--muted); }
+
+  /* CTA */
+  .cta-section { background: var(--surface); border-top: 1px solid var(--border); padding: 8rem 5rem; }
+  .cta-inner { max-width: 680px; margin: 0 auto; text-align: center; }
+  .cta-inner h2 { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 3.5vw, 3rem); font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; margin-bottom: 1rem; color: var(--ink); }
+  .cta-inner h2 em { font-style: italic; color: var(--accent); }
+  .cta-inner p { font-size: 1rem; color: var(--muted); line-height: 1.75; margin-bottom: 2.5rem; font-weight: 300; }
+
+  .form-row { display: flex; gap: 0.75rem; max-width: 480px; margin: 0 auto; }
+  .form-input {
+    flex: 1; background: var(--white); border: 1.5px solid var(--border); border-radius: 6px;
+    padding: 0.85rem 1.2rem; font-size: 0.9rem; color: var(--ink); outline: none;
+    font-family: 'Manrope', sans-serif; transition: border-color 0.2s;
+  }
+  .form-input::placeholder { color: var(--muted); }
+  .form-input:focus { border-color: var(--accent); }
+  .btn-submit {
+    background: var(--accent); color: #fff; border: none;
+    padding: 0.85rem 1.8rem; border-radius: 6px; font-size: 0.9rem; font-weight: 600;
+    cursor: pointer; font-family: 'Manrope', sans-serif;
+    transition: background 0.2s, transform 0.2s; white-space: nowrap;
+  }
+  .btn-submit:hover { background: #122c50; transform: translateY(-1px); }
+  .form-note { font-size: 0.75rem; color: var(--muted); margin-top: 0.9rem; }
+  #form-msg { display: none; margin-top: 1rem; font-size: 0.875rem; color: #166534; font-weight: 500; }
+
+  /* FOOTER */
+  footer { background: var(--ink); padding: 3rem 5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+  .footer-logo { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.2rem; color: rgba(255,255,255,0.9); }
+  .footer-logo span { color: var(--accent2); }
+  .footer-links { display: flex; gap: 2rem; list-style: none; }
+  .footer-links a { color: rgba(255,255,255,0.4); font-size: 0.82rem; text-decoration: none; transition: color 0.2s; }
+  .footer-links a:hover { color: rgba(255,255,255,0.75); }
+  .footer-copy { color: rgba(255,255,255,0.25); font-size: 0.78rem; }
+
+  /* Reveal */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.visible { opacity: 1; transform: none; }
+
+  @media (max-width: 900px) {
+    nav { padding: 0 1.5rem; }
+    .nav-links { display: none; }
+    .hero { grid-template-columns: 1fr; padding: 120px 1.5rem 5rem; gap: 3rem; min-height: auto; }
+    .features { padding: 5rem 1.5rem; }
+    .features-grid { grid-template-columns: 1fr; }
+    .pain-grid { grid-template-columns: 1fr !important; }
+    .stats-band { padding: 4rem 1.5rem; }
+    .stats-inner { grid-template-columns: repeat(2,1fr); }
+    .testimonial-section { padding: 5rem 1.5rem; }
+    .testimonial-grid { grid-template-columns: 1fr; }
+    .cta-section { padding: 5rem 1.5rem; }
+    .form-row { flex-direction: column; }
+    footer { flex-direction: column; text-align: center; padding: 2.5rem 1.5rem; }
+    .logos-strip { padding: 1.5rem; gap: 2rem; }
+    .float-card { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Optiv<span>us</span></div>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#stats">Results</a></li>
+    <li><a href="#testimonials">Clients</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="#" class="btn-ghost">Sign In</a>
+    <a href="#contact" class="btn-nav">Book a Demo</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section style="background: var(--bg);">
+  <div class="hero">
+    <div class="hero-left">
+      <div class="eyebrow"><span class="eyebrow-dot"></span>Inbound & Outbound · Voice AI Appointment Setter</div>
+      <h1>How many hours did you<br>waste on calls<br><em>last week?</em></h1>
+      <p class="hero-sub" style="margin-bottom:1rem;">Chasing leads who don't pick up. Answering the same questions over and over. Playing phone tag instead of running your business.</p>
+      <p class="hero-sub" style="font-weight:500; color:var(--ink); margin-bottom: 2.5rem;">Optivus handles every inbound and outbound call — qualifying leads and booking appointments directly into your calendar. <em style="color:var(--accent)">You show up. You close. We handle everything before that.</em></p>
+      <div class="hero-actions">
+        <a href="#contact" class="btn-primary">Book a Demo →</a>
+        <a href="#features" class="btn-outline">See How It Works</a>
+      </div>
+      <div class="trust-row">
+        <div class="trust-avatars">
+          <span>JM</span><span>SR</span><span>AK</span><span>PL</span><span>+</span>
+        </div>
+        <div class="trust-text">
+          <strong>1,200+ sales teams</strong> trust Optivus<br>to keep their calendars full
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-right">
+      <div class="float-card top-left">
+        <span style="font-size:1rem">📞</span>
+        <div>
+          <div class="fc-label">Currently Calling</div>
+          <div class="fc-value">14 leads in queue</div>
+        </div>
+      </div>
+
+      <div class="dashboard-card">
+        <div class="dashboard-header">
+          <div class="dashboard-header-title">Optivus Dashboard</div>
+          <div class="status-badge"><span class="status-dot"></span>Live</div>
+        </div>
+        <div class="dashboard-body">
+          <div class="stat-row">
+            <div class="stat-box">
+              <div class="stat-num">284</div>
+              <div class="stat-label">Appts Booked</div>
+              <div class="stat-change">↑ 34% this month</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-num gold">100%</div>
+              <div class="stat-label">Calls Answered</div>
+              <div class="stat-change">Zero missed calls</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-num">58s</div>
+              <div class="stat-label">Outbound Speed</div>
+              <div class="stat-change">Instant inbound</div>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="conversation-preview">
+            <div style="display:flex; align-items:center; gap:0.75rem; background:var(--surface); border-radius:8px; padding:0.8rem 1rem; margin-bottom:0.5rem;">
+              <div style="width:36px;height:36px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.75rem;font-weight:700;flex-shrink:0;">AI</div>
+              <div>
+                <div style="font-size:0.72rem;font-weight:600;color:var(--ink);">Optivus Voice Agent</div>
+                <div style="font-size:0.68rem;color:#16a34a;font-weight:500;">● Live Call · 1m 42s</div>
+              </div>
+              <div style="margin-left:auto;display:flex;gap:4px;align-items:flex-end;height:20px;">
+                <div style="width:3px;background:var(--accent);border-radius:2px;animation:bar1 0.8s ease-in-out infinite alternate;" class="voicebar"></div>
+                <div style="width:3px;background:var(--accent);border-radius:2px;animation:bar2 0.8s 0.15s ease-in-out infinite alternate;" class="voicebar"></div>
+                <div style="width:3px;background:var(--accent);border-radius:2px;animation:bar3 0.8s 0.3s ease-in-out infinite alternate;" class="voicebar"></div>
+                <div style="width:3px;background:var(--accent);border-radius:2px;animation:bar2 0.8s 0.45s ease-in-out infinite alternate;" class="voicebar"></div>
+                <div style="width:3px;background:var(--accent);border-radius:2px;animation:bar1 0.8s 0.6s ease-in-out infinite alternate;" class="voicebar"></div>
+              </div>
+            </div>
+            <div class="msg-row">
+              <div class="msg-avatar ai">AI</div>
+              <div class="msg-bubble ai">"Hi James, this is Alex from Nexora — do you have two minutes? I wanted to follow up on the proposal we sent over."</div>
+            </div>
+            <div class="msg-row right">
+              <div class="msg-avatar lead">JD</div>
+              <div class="msg-bubble lead">"Yeah sure, I've been meaning to look at that actually."</div>
+            </div>
+            <div class="msg-row">
+              <div class="msg-avatar ai">AI</div>
+              <div class="msg-bubble ai">"Great — would Thursday at 10am work for a quick 20-minute call with our team?"</div>
+            </div>
+            <div class="booked-badge">
+              <span style="font-size:1rem">✅</span>
+              <div>
+                <div class="booked-text">Appointment Booked via Voice Call</div>
+                <div class="booked-sub" style="color:#16a34a; font-size:0.68rem;">Thu, Mar 6 · 10:00 AM — Confirmation SMS sent</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="float-card bottom-right">
+        <div style="font-size:0.65rem; color:var(--muted); margin-bottom:0.2rem;">Hours saved this week</div>
+        <div style="font-size:1.1rem; font-weight:700; color:var(--accent); font-family:'Playfair Display',serif;">42 hrs</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LOGOS -->
+<div class="logos-strip">
+  <div class="logos-label">Trusted by teams at</div>
+  <div class="logo-item">Meridian Group</div>
+  <div class="logo-item">Veltro</div>
+  <div class="logo-item">Cascade Partners</div>
+  <div class="logo-item">Nexora</div>
+  <div class="logo-item">Halcyon</div>
+</div>
+
+<!-- PAIN SECTION -->
+<section style="padding: 7rem 5rem; max-width: 1280px; margin: 0 auto;">
+  <div class="section-header reveal" style="text-align:center; max-width:640px; margin: 0 auto 4rem;">
+    <div class="section-eyebrow">Sound Familiar?</div>
+    <h2 class="section-title" style="max-width:100%; text-align:center;">Every hour on the phone<br>is an hour <em>not growing</em><br>your business.</h2>
+  </div>
+  <div style="display:grid; grid-template-columns: repeat(3,1fr); gap:1.5rem;" class="pain-grid">
+    <div class="pain-card reveal" style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:2rem;">
+      <div style="font-size:1.6rem;margin-bottom:1rem;">😤</div>
+      <h3 style="font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;margin-bottom:0.6rem;color:var(--ink);">"I called them 4 times and they never picked up."</h3>
+      <p style="font-size:0.88rem;color:var(--muted);line-height:1.7;font-weight:300;">Hours of your week vanish chasing leads who ghost you — while your actual business waits.</p>
+    </div>
+    <div class="pain-card reveal" style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:2rem;transition-delay:0.1s;">
+      <div style="font-size:1.6rem;margin-bottom:1rem;">📵</div>
+      <h3 style="font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;margin-bottom:0.6rem;color:var(--ink);">"A hot lead called while I was in a meeting. Now they've gone cold."</h3>
+      <p style="font-size:0.88rem;color:var(--muted);line-height:1.7;font-weight:300;">Every missed call is a missed opportunity. You can't be on the phone 24/7 — but your business needs to be.</p>
+    </div>
+    <div class="pain-card reveal" style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:2rem;transition-delay:0.2s;">
+      <div style="font-size:1.6rem;margin-bottom:1rem;">🔄</div>
+      <h3 style="font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;margin-bottom:0.6rem;color:var(--ink);">"I answer the same questions every single day."</h3>
+      <p style="font-size:0.88rem;color:var(--muted);line-height:1.7;font-weight:300;">Qualifying leads manually is exhausting and repetitive. You didn't start a business to spend your days on the phone.</p>
+    </div>
+  </div>
+  <div class="reveal" style="text-align:center;margin-top:3.5rem;">
+    <p style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--ink);max-width:560px;margin:0 auto 1.5rem;line-height:1.4;">There's a better way to spend your time.<br><em style="color:var(--accent)">Let Optivus make the calls.</em></p>
+    <a href="#contact" class="btn-primary" style="display:inline-flex;">Get Your Time Back →</a>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="section-header reveal">
+    <div class="section-eyebrow">Core Capabilities</div>
+    <h2 class="section-title">One agent. Every call.<br><em>Every appointment</em> booked.</h2>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card reveal">
+      <div class="feature-num">01</div>
+      <h3>Outbound Calling at Scale</h3>
+      <p>Optivus proactively calls your lead list — whether it's 10 or 10,000 — initiating natural conversations, qualifying prospects, and booking meetings without a single human rep involved.</p>
+    </div>
+    <div class="feature-card reveal" style="transition-delay:0.1s">
+      <div class="feature-num">02</div>
+      <h3>Inbound Call Handling</h3>
+      <p>Every inbound call is answered instantly — day, night, weekend, holiday. Optivus greets callers like a professional rep, understands their need, and moves them toward a booked appointment.</p>
+    </div>
+    <div class="feature-card reveal" style="transition-delay:0.2s">
+      <div class="feature-num">03</div>
+      <h3>Smart Lead Qualification</h3>
+      <p>Not every lead deserves a spot on your calendar. Optivus asks the right questions, filters out time-wasters, and only books meetings with prospects who are genuinely worth your time.</p>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-num">04</div>
+      <h3>Human-Grade Voice Quality</h3>
+      <p>Natural pacing, realistic tone, contextual pauses — callers have no idea they're speaking to AI. Optivus adapts its language and energy to match each individual conversation.</p>
+    </div>
+    <div class="feature-card reveal" style="transition-delay:0.1s">
+      <div class="feature-num">05</div>
+      <h3>Full Recordings & Transcripts</h3>
+      <p>Every call — inbound and outbound — is recorded, transcribed, and searchable. Review conversations, understand your leads, and walk into every meeting fully prepared.</p>
+    </div>
+    <div class="feature-card reveal" style="transition-delay:0.2s">
+      <div class="feature-num">06</div>
+      <h3>CRM & Calendar Sync</h3>
+      <p>Booked appointments land directly in Google Calendar or Outlook. All call outcomes sync automatically to HubSpot, Salesforce, and Pipedrive — your pipeline stays clean without lifting a finger.</p>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats-band" id="stats">
+  <div class="stats-inner">
+    <div class="reveal">
+      <div class="stat-big">0<span>%</span></div>
+      <div class="stat-desc">Inbound calls ever missed — answered instantly, every time</div>
+    </div>
+    <div class="reveal" style="transition-delay:0.1s">
+      <div class="stat-big">3<span>×</span></div>
+      <div class="stat-desc">More appointments booked vs. a human SDR team</div>
+    </div>
+    <div class="reveal" style="transition-delay:0.2s">
+      <div class="stat-big">87<span>%</span></div>
+      <div class="stat-desc">Average show rate — higher than industry standard</div>
+    </div>
+    <div class="reveal" style="transition-delay:0.3s">
+      <div class="stat-big">24<span>/7</span></div>
+      <div class="stat-desc">Always on — closing deals while your team sleeps</div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonial-section" id="testimonials">
+  <div class="section-header reveal">
+    <div class="section-eyebrow">Client Results</div>
+    <h2 class="section-title">What our clients are <em>saying</em></h2>
+  </div>
+  <div class="testimonial-grid">
+    <div class="testimonial-card reveal">
+      <div class="stars">★★★★★</div>
+      <blockquote>"A prospect called our number at 11pm on a Friday. Optivus answered, had a full sales conversation, handled two objections, and booked a meeting. We woke up to a confirmed appointment."</blockquote>
+      <div class="testimonial-author">
+        <div class="author-avatar">JM</div>
+        <div>
+          <div class="author-name">James Morgan</div>
+          <div class="author-title">VP of Sales, Meridian Group</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card reveal" style="transition-delay:0.1s">
+      <div class="stars">★★★★★</div>
+      <blockquote>"It doesn't just answer calls — it actually qualifies the lead and books the meeting on the spot. Our calendar went from half-empty to fully booked within the first week."</blockquote>
+      <div class="testimonial-author">
+        <div class="author-avatar">SR</div>
+        <div>
+          <div class="author-name">Sarah Raines</div>
+          <div class="author-title">Head of Revenue, Veltro</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card reveal" style="transition-delay:0.2s">
+      <div class="stars">★★★★★</div>
+      <blockquote>"We replaced two full-time SDRs with Optivus. It handles our entire inbound and outbound calling. Our close rate actually went up because it never has a bad day or rushes a call."</blockquote>
+      <div class="testimonial-author">
+        <div class="author-avatar">PL</div>
+        <div>
+          <div class="author-name">Paul Lee</div>
+          <div class="author-title">Founder, Cascade Partners</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="contact">
+  <div class="cta-inner reveal">
+    <h2>You close deals.<br><em>Optivus</em> fills your calendar.</h2>
+    <p>Stop spending your day on the phone chasing and qualifying leads. Optivus handles every call — inbound and outbound — and hands you a calendar full of confirmed appointments.</p>
+    <!--
+      FORMSPREE SETUP:
+      1. Go to https://formspree.io and sign up free
+      2. Create a new form to get your ID (e.g. xpznwkqr)
+      3. Replace YOUR_FORM_ID below with your actual ID
+    -->
+    <form id="ctaForm" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+      <div class="form-row">
+        <input class="form-input" type="email" name="email" placeholder="Enter your work email" required />
+        <button type="submit" class="btn-submit">Book a Demo</button>
+      </div>
+      <p class="form-note">We'll call you within 1 business day · No credit card required</p>
+      <p id="form-msg">✓ Thank you — we'll be in touch within one business day.</p>
+    </form>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Optiv<span>us</span></div>
+  <ul class="footer-links">
+    <li><a href="#">Features</a></li>
+    <li><a href="#">Pricing</a></li>
+    <li><a href="#">Privacy Policy</a></li>
+    <li><a href="#">Terms of Service</a></li>
+  </ul>
+  <div class="footer-copy">© 2026 Optivus. All rights reserved.</div>
+</footer>
+
+<script>
+  // Formspree AJAX submission
+  const form = document.getElementById('ctaForm');
+  const msg = document.getElementById('form-msg');
+  if (form) {
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const btn = form.querySelector('.btn-submit');
+      btn.textContent = 'Sending...';
+      btn.disabled = true;
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { 'Accept': 'application/json' }
+        });
+        if (res.ok) {
+          form.querySelector('.form-row').style.display = 'none';
+          form.querySelector('.form-note').style.display = 'none';
+          msg.style.display = 'block';
+        } else {
+          btn.textContent = 'Try Again';
+          btn.disabled = false;
+        }
+      } catch {
+        btn.textContent = 'Try Again';
+        btn.disabled = false;
+      }
+    });
+  }
+
+  // Scroll reveal
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
